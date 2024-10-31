@@ -48,7 +48,7 @@ public class ProcessController : ControllerBase
         var subProcess = this.GetProcess();
         ProcessBuilder process = new("Another");
         process.AddStepFromProcess(subProcess);
-        process.OnInputEvent("CommonEvents.StartProcess").SendEventTo(subProcess.WhereInputEventIs(CommonEvents.StartProcess));
+        process.OnInputEvent(CommonEvents.StartProcess).SendEventTo(subProcess.WhereInputEventIs(CommonEvents.StartProcess));
         var processContext = await process.Build().StartAsync(this._kernel, new KernelProcessEvent() { Id = CommonEvents.StartProcess, Data = 3 }, processId: processId);
         var finalState = await processContext.GetStateAsync();
 
