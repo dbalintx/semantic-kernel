@@ -32,13 +32,30 @@ public class ProcessController : ControllerBase
     public async Task<IActionResult> PostAsync(string processId)
     {
         var process = this.GetProcess();
-        var processContext = await process.StartAsync(this._kernel, new KernelProcessEvent() { Id = CommonEvents.StartProcess }, processId: processId);
+        var processContext = await process.Build().StartAsync(this._kernel, new KernelProcessEvent() { Id = CommonEvents.StartProcess }, processId: processId);
+        var finalState = await processContext.GetStateAsync();
+
+        return this.Ok(processId);
+    }
+    /// <summary>
+    /// Start and run a process.
+    /// </summary>
+    /// <param name="processId">The Id of the process.</param>
+    /// <returns></returns>
+    [HttpGet("sub/{processId}")]
+    public async Task<IActionResult> SubAsync(string processId)
+    {
+        var subProcess = this.GetProcess();
+        ProcessBuilder process = new("Another");
+        process.AddStepFromProcess(subProcess);
+        process.OnInputEvent("CommonEvents.StartProcess").SendEventTo(subProcess.WhereInputEventIs(CommonEvents.StartProcess));
+        var processContext = await process.Build().StartAsync(this._kernel, new KernelProcessEvent() { Id = CommonEvents.StartProcess, Data = 3 }, processId: processId);
         var finalState = await processContext.GetStateAsync();
 
         return this.Ok(processId);
     }
 
-    private KernelProcess GetProcess()
+    private ProcessBuilder GetProcess()
     {
         // Create the process builder.
         ProcessBuilder processBuilder = new("ProcessWithDapr");
@@ -85,8 +102,7 @@ public class ProcessController : ControllerBase
             .OnEvent(CommonEvents.ExitRequested)
             .StopProcess();
 
-        var process = processBuilder.Build();
-        return process;
+        return processBuilder;
     }
 
 #pragma warning disable CA1812 // Avoid uninstantiated internal classes
