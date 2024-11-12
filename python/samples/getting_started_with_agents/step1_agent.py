@@ -4,7 +4,7 @@ import asyncio
 from functools import reduce
 
 from semantic_kernel.agents import ChatCompletionAgent
-from semantic_kernel.connectors.ai.open_ai import AzureChatCompletion
+from semantic_kernel.connectors.ai.open_ai import OpenAIChatCompletion
 from semantic_kernel.contents.chat_history import ChatHistory
 from semantic_kernel.contents.utils.author_role import AuthorRole
 from semantic_kernel.kernel import Kernel
@@ -49,7 +49,7 @@ async def main():
     kernel = Kernel()
 
     # Add the OpenAIChatCompletion AI Service to the Kernel
-    kernel.add_service(AzureChatCompletion(service_id="agent"))
+    kernel.add_service(OpenAIChatCompletion(service_id="agent"))
 
     # Create the agent
     agent = ChatCompletionAgent(service_id="agent", kernel=kernel, name=PARROT_NAME, instructions=PARROT_INSTRUCTIONS)
